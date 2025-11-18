@@ -26,3 +26,21 @@ class BST:
           else:
             current_node = current_node.right_child
 
+
+    def find_min(self):
+        current_node = self.root
+        while current_node.left_child:
+            current_node = current_node.left_child
+        return current_node.data
+
+    def find_max(self):
+        current_node = self.root
+        while current_node.right_child:
+            current_node = current_node.right_child
+        return current_node.data
+
+    def deep_first_visit(self, current_node):
+        if current_node:
+            self.in_order(current_node.left_child)
+            print(current_node.data)
+            self.in_order(current_node.right_child)
