@@ -7,11 +7,19 @@ authors = [
     { name = "Antonino Cangialosi", email = "ninocangialosi@yahoo.it" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "jinja2>=3.1.6",
+]
 
 [project.scripts]
-advent-of-code-2025 = "advent_of_code_2025:main"
+advent-of-code-2025 = "src:main"
 
 [build-system]
 requires = ["uv_build>=0.9.8,<0.10.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pyrefly>=0.43.1",
+    "pytest>=9.0.1",
+]
