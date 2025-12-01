@@ -95,8 +95,8 @@ class SafeWithDialPassByZeroDetector(SafeWithDial):
 
     def _right_winding_number(self, degrees: int) -> int:
         excess = 0 if (self.dial_number + degrees) % -100 else 1
-        pass_by_zero = (self.dial_number + degrees) // 100 - excess
-        return pass_by_zero
+        winding = (self.dial_number + degrees) // 100
+        return winding - excess
 
     def batch(self, instructions: list[str]) -> Self:
         print(self)
