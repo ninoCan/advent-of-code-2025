@@ -10,7 +10,7 @@ from src.day1.main import Solution
 def provide_test_lines() -> list[str]:
     source_path = Path(getsourcefile(Solution)).resolve().parent / "README.md"
     with source_path.open("r") as file:
-        example_slice = slice(63, 73)
+        example_slice = slice(62, 72)
         return [line.strip() for line in file.readlines()[example_slice]]
 
 

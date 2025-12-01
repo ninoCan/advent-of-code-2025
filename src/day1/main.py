@@ -44,7 +44,7 @@ class SafeWithDial:
 
 
     def batch(self, instructions: list[str]) -> int:
-        if instructions[0] == "":
+        if not instructions:
             return self.dial_number
         direction, degree = instructions[0][0], int(instructions[0][1:])
         if direction == "L":

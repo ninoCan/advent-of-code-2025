@@ -1,16 +1,13 @@
 from inspect import getsourcefile
 from pathlib import Path
+from .test_main import provide_test_lines
 
 import pytest
 
 from src.day1.main import SafeWithDial
 
-@pytest.fixture()
-def provide_safe():
-    return SafeWithDial(pointing_at=50)
-
-def test_should_rotate_left(provide_safe):
-    safe = provide_safe
+def test_should_rotate_left():
+    safe = SafeWithDial()
 
     for degrees in range(100):
         expected = (50 - degrees) % 100
@@ -18,11 +15,19 @@ def test_should_rotate_left(provide_safe):
         assert actual.dial_number == expected
         safe = SafeWithDial()
 
-def test_should_rotate_right(provide_safe):
-    safe = provide_safe
+def test_should_rotate_right():
+    safe = SafeWithDial()
 
     for degrees in range(100):
         expected = (50 + degrees) % 100
         actual = safe.rotate_right(degrees)
         assert actual.dial_number == expected
         safe = SafeWithDial()
+
+def test_should_execute_batch(provide_test_lines):
+    safe = SafeWithDial()
+    expected = 32
+    actual = safe.batch(provide_test_lines)
+    assert actual == expected
+
+
