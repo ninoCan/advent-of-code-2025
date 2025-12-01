@@ -28,6 +28,7 @@ def test_should_execute_batch(provide_test_lines):
     safe = SafeWithDial()
     expected = 32
     actual = safe.batch(provide_test_lines)
-    assert actual == expected
+    assert actual.dial_number == expected
+    assert actual.visited_zero == 3
 
 
