@@ -1,5 +1,3 @@
-"""This is a template file do not use it directly."""
-
 from inspect import getsourcefile
 from pathlib import Path
 
