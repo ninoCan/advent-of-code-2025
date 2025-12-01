@@ -8,3 +8,11 @@ wheels/
 
 # Virtual environments
 .venv
+
+# environments variables
+.env
+.session-cookie
+
+# input files -- not allowed by the rules
+**/input.txt
+src/**/README.md
