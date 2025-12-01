@@ -52,8 +52,6 @@ class SafeWithDial:
             return SafeWithDial(new_safe.dial_number, new_safe.visited_zero + 1)
         return new_safe
 
-
-
     def batch(self, instructions: list[str]) -> Self:
         if not instructions:
             return self
@@ -65,6 +63,51 @@ class SafeWithDial:
         raise ValueError("Invalid direction")
 
 
+class SafeWithDialPassByZeroDetector(SafeWithDial):
+    def rotate_left(self, degrees: int) -> Self:
+        new_safe = SafeWithDialPassByZeroDetector(
+            pointing_at=((self.dial_number - degrees) % 100),
+            visited_zero=self.visited_zero + self._left_winding_number(degrees),
+        )
+        if new_safe.dial_number == 0:
+            return SafeWithDialPassByZeroDetector(new_safe.dial_number, new_safe.visited_zero + 1)
+        return new_safe
+
+    def _left_winding_number(self, degrees: int) -> int:
+        defect = 1 if (self.dial_number - degrees) % -100 else 0
+        if self.dial_number == 0:
+            winding_number = degrees // 100
+        else:
+            if self.dial_number >= degrees:
+                winding_number = 0
+            else:
+                winding_number = ((self.dial_number - degrees) // -100)
+        return winding_number + defect
+
+    def rotate_right(self, degrees: int) -> Self:
+        new_safe = SafeWithDialPassByZeroDetector(
+            pointing_at=((self.dial_number + degrees) % 100),
+            visited_zero=self.visited_zero + self._right_winding_number(degrees),
+        )
+        if new_safe.dial_number == 0:
+            return SafeWithDialPassByZeroDetector(new_safe.dial_number, new_safe.visited_zero + 1)
+        return new_safe
+
+    def _right_winding_number(self, degrees: int) -> int:
+        excess = 0 if (self.dial_number + degrees) % -100 else 1
+        pass_by_zero = (self.dial_number + degrees) // 100 - excess
+        return pass_by_zero
+
+    def batch(self, instructions: list[str]) -> Self:
+        print(self)
+        if not instructions:
+            return self
+        direction, degree = instructions[0][0], int(instructions[0][1:])
+        if direction == "L":
+            return SafeWithDialPassByZeroDetector(self.dial_number, self.visited_zero).rotate_left(degree).batch(instructions[1:])
+        elif direction == "R":
+            return SafeWithDialPassByZeroDetector(self.dial_number, self.visited_zero).rotate_right(degree).batch(instructions[1:])
+        raise ValueError("Invalid direction")
 
 class Solution:
     _STANDARD_PATH = Path(__file__).parent / "input.txt"
@@ -88,7 +131,12 @@ class Solution:
 
 
     def second_task(self) -> int:
-        pass
+        new_recursion_limit = len(self.lines) + 10
+        if new_recursion_limit > sys.getrecursionlimit():
+            sys.setrecursionlimit(new_recursion_limit)
+        safe = SafeWithDialPassByZeroDetector()
+        final_safe = safe.batch(self.lines)
+        return final_safe.visited_zero
 
 
 def main():
