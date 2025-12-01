@@ -1,6 +1,14 @@
 from pathlib import Path
 
+class SafeWithDial:
+    def __init__(self, pointing_at: int = 50):
+        self.dial_number = pointing_at
 
+    def rotate_left(self, degrees: int):
+        return SafeWithDial(pointing_at=((self.dial_number - degrees) % 100))
+
+    def rotate_right(self, degrees: int):
+        return SafeWithDial(pointing_at=((self.dial_number + degrees) % 100))
 
 class Solution:
     _STANDARD_PATH = Path(__file__).parent / "input.txt"
