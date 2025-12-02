@@ -20,12 +20,12 @@ class IDSpan:
     @staticmethod
     def is_id_invalid_for_all_parts(id_number: int) -> bool:
         code = str(id_number)
-        factors = [
+        len_factors = [
             el
             for el in range(1, (len(code) // 2) + 1)
-            if id_number % el == 0
+            if len(code) % el == 0
         ]
-        for batch_size in factors:
+        for batch_size in len_factors:
             batches =  [el for el in  batched(code, batch_size)]
             if len(set(batches)) == 1:
                 return True
