@@ -13,14 +13,21 @@ from src.day2.main import Solution
 def provide_test_lines() -> list[str]:
     source_path = Path(getsourcefile(Solution)).resolve().parent / 'README.md'
     with source_path.open("r") as file:
-        example_slice = slice("n - 1", "m")
+        example_slice = slice(43, 51)
         return [line.strip() for line in file.readlines()[example_slice]]
 
+@pytest.fixture
+def provide_test_line() -> str:
+    source_path = Path(getsourcefile(Solution)).resolve().parent / 'README.md'
+    with source_path.open("r") as file:
+        example_slice = slice(22, 25)
+        return "".join([line.strip() for line in file.readlines()[example_slice]])
 
 
-def test_first_task(provide_test_lines: list[str]) -> None:
-    under_test = Solution(lines=provide_test_lines)
-    expected = "placeholder"
+
+def test_first_task(provide_test_line: list[str]) -> None:
+    under_test = Solution(lines=provide_test_line)
+    expected = 1227775554
     actual = under_test.first_task()
     assert actual == expected
 
