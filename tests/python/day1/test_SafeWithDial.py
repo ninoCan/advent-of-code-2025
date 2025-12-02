@@ -4,7 +4,7 @@ from .test_main import provide_test_lines
 
 import pytest
 
-from src.day1.main import SafeWithDial, SafeWithDialPassByZeroDetector
+from advent_of_code_2025_python.day1.main import SafeWithDial, SafeWithDialPassByZeroDetector
 
 def test_should_rotate_left():
     safe = SafeWithDial()

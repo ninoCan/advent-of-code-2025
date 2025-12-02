@@ -12,11 +12,11 @@ def main() -> None:
     }
 
     main_path = (
-        f"""src/day{params["day"]}/main.py"""
+        f"""src/advent_of_code_2025_python/day{params["day"]}/main.py"""
     )
-    test_path = f"""tests/day{params["day"]}/test_main.py"""
+    test_path = f"""tests/python/day{params["day"]}/test_main.py"""
 
-    for file in Path(__file__).parent.glob('*.jinja'):
+    for file in Path(__file__).parent.glob('*.py.jinja'):
         template = environment.get_template(file.name)
         dest = test_path if "test" in file.name else main_path
 

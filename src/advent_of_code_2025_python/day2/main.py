@@ -1,4 +1,3 @@
-from functools import reduce
 from itertools import chain, batched
 from pathlib import Path
 from typing import Optional

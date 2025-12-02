@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from src.day1.main import Solution
+from advent_of_code_2025_python.day1.main import Solution
 
 
 @pytest.fixture

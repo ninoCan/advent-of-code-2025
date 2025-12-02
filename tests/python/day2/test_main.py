@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from src.day2.main import Solution, IDSpan
-from utils.html_code_parser import CodeExtractor
+from advent_of_code_2025_python.day2.main import Solution, IDSpan
+from utils.python.html_code_parser import CodeExtractor
 
 
 @pytest.fixture
