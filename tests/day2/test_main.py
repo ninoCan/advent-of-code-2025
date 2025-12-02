@@ -36,4 +36,15 @@ def test_second_task(provide_test_line: list[str]) -> None:
     under_test = Solution(lines=provide_test_line)
     expected = 4174379265
     actual = under_test.second_task()
+    assert actual == expected
+
+
+def test_sieve_ids_with_repeating_digits(provide_test_lines):
+    under_test = IDSpan
+    for line in provide_test_lines:
+        parser = CodeExtractor()
+        parser.feed(line)
+        input_stub, *expected = parser.results
+        actual = under_test(input_stub).sieve_ids_with_repeating_digits()
+        assert actual == [int(el) for el in expected], f"Fails on {input_stub}"
 
