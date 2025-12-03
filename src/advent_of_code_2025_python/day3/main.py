@@ -1,6 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional
 
 
 class BatteryBank:
@@ -19,6 +19,25 @@ class BatteryBank:
         sub_max = max(self.batteries[index1+1:])
         return int(f"{max1}{sub_max}")
 
+    @property
+    def max_12_joltage(self) -> int:
+        bank = deepcopy(self.batteries)
+        candidate_max = ""
+        while (digits_to_fill:=(12 - len(candidate_max))) > 0:
+            max1 = max(bank)
+            index1 = bank.index(max1)
+            if index1 > len(bank) - digits_to_fill:
+                digits = set(bank) - {max1}
+                new_max = max(digits)
+                while bank.index(new_max) > len(bank) - digits_to_fill:
+                    digits.remove(new_max)
+                    new_max = max(digits)
+                candidate_max = f"{candidate_max}{new_max}"
+                bank = bank[bank.index(new_max) + 1:]
+            else:
+                candidate_max = f"{candidate_max}{max1}"
+                bank = bank[bank.index(max1) + 1:]
+        return int(candidate_max)
 
 class Solution:
     _STANDARD_PATH = Path(__file__).parent / "input.txt"
@@ -33,7 +52,8 @@ class Solution:
 
 
     def second_task(self) -> int:
-        pass
+        banks = [BatteryBank(line.strip("\n")) for line in self.lines]
+        return sum([bank.max_12_joltage for bank in banks])
 
 def main():
     solution = Solution()

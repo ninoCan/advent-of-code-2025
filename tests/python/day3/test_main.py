@@ -34,6 +34,6 @@ def test_max_joltage(provide_test_lines):
 
 def test_second_task(provide_test_lines: list[str]) -> None:
     under_test = Solution(lines=provide_test_lines)
-    expected = "placeholder"
+    expected = 3121910778619
     actual = under_test.second_task()
     assert actual == expected
