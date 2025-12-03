@@ -16,3 +16,15 @@ wheels/
 # input files -- not allowed by the rules
 **/input.txt
 src/**/README.md
+
+
+# Added by cargo
+
+/target
+
+
+# Added by cargo
+#
+# already existing elements were commented out
+
+#/target
