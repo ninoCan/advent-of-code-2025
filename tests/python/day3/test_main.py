@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from src.day3.main import Solution
+from src.advent_of_code_2025_python.day3.main import Solution
 
 
 
@@ -13,14 +13,14 @@ from src.day3.main import Solution
 def provide_test_lines() -> list[str]:
     source_path = Path(getsourcefile(Solution)).resolve().parent / 'README.md'
     with source_path.open("r") as file:
-        example_slice = slice("n - 1", "m")
+        example_slice = slice(25, 29)
         return [line.strip() for line in file.readlines()[example_slice]]
 
 
 
 def test_first_task(provide_test_lines: list[str]) -> None:
     under_test = Solution(lines=provide_test_lines)
-    expected = "placeholder"
+    expected = 357
     actual = under_test.first_task()
     assert actual == expected
 
