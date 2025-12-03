@@ -3,7 +3,7 @@ include .env
 YEAR := $(shell date +'%Y')
 DAY := $(shell date +'%d' | sed 's/^0//')
 FOLDER_PATH := src/advent_of_code_$(YEAR)_python/day$(DAY)
-TEST_FOLDER := tests/advent_of_code_$(YEAR)_python/day$(DAY)
+TEST_FOLDER := tests/python/day$(DAY)
 AOC_SESSION_COOKIE := $(shell cat .session-cookie)
 URL_FOR_TODAY :=  "https://adventofcode.com/$(YEAR)/day/$(DAY)"
 BRANCH_NAME := day$(DAY)-challenge1
