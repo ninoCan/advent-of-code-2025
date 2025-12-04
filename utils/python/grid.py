@@ -1,3 +1,4 @@
+from itertools import product
 from typing import Sequence, Iterator
 
 import numpy as np
@@ -65,7 +66,21 @@ class Grid:
     def copy(self) -> "Grid":
         return Grid(self.data.copy())
 
-    def points(self) -> Iterator[Point, str]:
-        for x in range(self.width):
-            for y in range(self.height):
-                yield Point(x, y)
+    def points(self) -> Iterator[Point]:
+        for x, y in product(range(self.width), range(self.height)):
+            yield Point(x, y)
+
+    def count_neighbors_like(self, point: Point, char_to_match: str) -> int:
+        neighboring_coords = [
+            (point.x + x, point.y + y)
+            for x in (-1, 0, 1)
+            for y in (-1, 0, 1)
+            if self.grid.width > point.x + x >= 0
+               and self.grid.height > point.y + y >= 0
+               and (x, y) != (0, 0)
+        ]
+        return sum(
+            1
+            for coord_pair in neighboring_coords
+            if self.data[coord_pair[0], coord_pair[1]] == char_to_match
+        )

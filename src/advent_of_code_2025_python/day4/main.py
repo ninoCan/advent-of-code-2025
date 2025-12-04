@@ -51,8 +51,7 @@ class Solution:
             ]
 
     def first_task(self) -> int:
-        dep = PrintingDepartment(Grid(self.lines))
-        return dep.suitable_spots
+        return PrintingDepartment(Grid(self.lines)).suitable_spots
 
 
     def second_task(self) -> int:
