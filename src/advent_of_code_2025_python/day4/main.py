@@ -9,6 +9,7 @@ from utils.python.grid import Grid
 @dataclass
 class PrintingDepartment:
     grid: Grid
+    removed_rolls: int = 0
 
     def count_neighbors_like(self, point: Point, char_to_match: str) -> int:
         neighboring_coords = [
@@ -34,6 +35,10 @@ class PrintingDepartment:
             and self.count_neighbors_like(Point(x, y), "@") < 4
         )
 
+    def remove_roll(self, point: Point) -> None:
+        self.grid.data[point.x, point.y] = "."
+        self.removed_rolls += 1
+
 
 class Solution:
     _STANDARD_PATH = Path(__file__).parent / "input.txt"
@@ -50,9 +55,15 @@ class Solution:
         return dep.suitable_spots
 
 
-
     def second_task(self) -> int:
         dep = PrintingDepartment(Grid(self.lines))
+        while dep.suitable_spots > 0:
+            for x, y in product(range(dep.grid.width), range(dep.grid.height)):
+                if dep.grid.data[x, y] == ".":
+                    continue
+                if dep.count_neighbors_like(Point(x, y), "@") < 4:
+                    dep.remove_roll(Point(x, y))
+        return dep.removed_rolls
 
 def main():
     solution = Solution()
