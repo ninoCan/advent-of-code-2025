@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from src.advento_of_code_2025_python.day4.main import Solution
+from src.advent_of_code_2025_python.day4.main import Solution
 
 
 
