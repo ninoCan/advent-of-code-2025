@@ -25,6 +25,14 @@ class PrintingDepartment:
             if self.grid.data[coord_pair[0], coord_pair[1]] == char_to_match
         )
 
+    @property
+    def suitable_spots(self) -> int:
+        return sum(
+            1
+            for x, y in product(range(self.grid.width), range(self.grid.height))
+            if self.grid.data[x, y] == "@"
+            and self.count_neighbors_like(Point(x, y), "@") < 4
+        )
 
 
 class Solution:
@@ -39,19 +47,12 @@ class Solution:
 
     def first_task(self) -> int:
         dep = PrintingDepartment(Grid(self.lines))
-        suitable_spots = 0
-        for x, y in product(range(dep.grid.width), range(dep.grid.height)):
-            if dep.grid.data[x, y] == ".":
-                continue
-            like = dep.count_neighbors_like(Point(x, y), "@")
-            if like < 4:
-                suitable_spots += 1
-        return suitable_spots
+        return dep.suitable_spots
 
 
 
     def second_task(self) -> int:
-        pass
+        dep = PrintingDepartment(Grid(self.lines))
 
 def main():
     solution = Solution()
