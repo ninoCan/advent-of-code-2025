@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Sequence, Iterator
 
 import numpy as np
 
@@ -64,3 +64,8 @@ class Grid:
 
     def copy(self) -> "Grid":
         return Grid(self.data.copy())
+
+    def points(self) -> Iterator[Point, str]:
+        for x in range(self.width):
+            for y in range(self.height):
+                yield Point(x, y)
