@@ -26,7 +26,17 @@ def test_first_task(provide_test_lines: list[str]) -> None:
 
 
 def test_second_task(provide_test_lines: list[str]) -> None:
-    under_test = Solution(lines=provide_test_lines)
-    expected = "placeholder"
+    under_test = Solution(lines=[
+        "3-5\n",
+        "10-14\n",
+        "14-14\n",
+        "16-20\n",
+        "12-18\n",
+        "3-3\n",
+        "21-21\n",
+        "\n",
+        "241\n",
+    ])
+    expected = 15
     actual = under_test.second_task()
     assert actual == expected
