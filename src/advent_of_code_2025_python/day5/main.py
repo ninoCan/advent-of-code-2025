@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from copy import deepcopy
 from functools import cached_property
 from pathlib import Path
 from typing import Optional, Counter
@@ -16,9 +16,6 @@ class Cafeteria:
             for extent in freshness_ranges
             for low, high in [extent.split("-")]
             if "-" in extent
-           # (int(extent.split("-")[0]), int(extent.split("-")[1]))
-           # for extent in freshness_ranges
-           # if "-" in extent
         ]
         self.raw_ingredients = [
            int(item)
@@ -43,6 +40,41 @@ class Cafeteria:
                 status["spoiled"].append(ingredient)
         return status
 
+    @cached_property
+    def number_of_fresh_ingredients(self) -> int:
+        processed = Counter({
+            (low, high): high - low + 1
+            for [low, high] in self.freshness_ranges
+        })
+        for [low, high] in self.freshness_ranges:
+            self.deduplicate_range(high, low, processed)
+        return processed.total()
+
+    def deduplicate_range(self, high: int, low: int, processed: Counter[tuple[int, int]]):
+        pivot = deepcopy(processed)
+        for [plow, phigh] in pivot.keys():
+            if low > phigh or high < plow:
+                processed[(low, high)] = high - low + 1
+            elif plow <= low <= phigh < high:
+                del processed[(plow, phigh)]
+                del processed[(low, high)]
+                processed[(plow, high)] = high - plow + 1
+                low = plow
+            elif low < plow <= high <= phigh:
+                del processed[(plow, phigh)]
+                del processed[(low, high)]
+                processed[(low, phigh)] = phigh - low + 1
+                high = phigh
+            elif plow <= low <= high <= phigh:
+                del processed[(low, high)]
+                low, high = plow, phigh
+            elif low <= plow <= phigh <= high:
+                del processed[(plow, low)]
+                del processed[(low, high)]
+                processed[(low, high)] = high - low + 1
+            else:
+                raise RuntimeError("Something is askew with my logic")
+
 
 class Solution:
     _STANDARD_PATH = Path(__file__).parent / "input.txt"
@@ -62,7 +94,9 @@ class Solution:
 
 
     def second_task(self) -> int:
-        pass
+        empty_index = self.lines.index("")
+        cafeteria = Cafeteria(self.lines[:empty_index], self.lines[empty_index + 1:])
+        return cafeteria.number_of_fresh_ingredients
 
 def main():
     solution = Solution()
