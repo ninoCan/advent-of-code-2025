@@ -3,7 +3,6 @@ from copy import deepcopy
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from string import digits
 from typing import Optional
 
 
@@ -20,42 +19,52 @@ ops = {
 class Worksheet:
     @dataclass
     class Column:
-        operands: str
+        operands: list[str]
         operator_to_use: Operator
 
         @property
-        def total(self):
+        def total(self) -> int:
             return eval(self.operator_to_use.join(self.operands))
 
-    def __init__(self, lines: list[str]):
-        columns = self.parse_columns(deepcopy(lines))
+    def __init__(self, lines: list[str], cephalopod: bool=False):
+        copied = deepcopy(lines)
+        columns = self.parse_columns(copied) if not cephalopod else self.parse_ceph(copied)
         self.columns = [
             self.Column(col[:-1], ops[col[-1]])
             for col in columns
-            if col[-1] in ("+", "*")
+            if col and col[-1] in ("+", "*")
         ]
 
     @property
-    def sum_totals(self):
+    def sum_totals(self) -> int:
         return sum(col.total for col in self.columns)
 
-    def parse_columns(self, lines: list[str]):
+    def parse_columns(self, lines: list[str]) -> list[list[str]]:
         pattern = r"\d+"
         re.compile(pattern)
-        operations_to_perform = [
-            el
-            for el in lines.pop(len(lines) - 1).split(" ")
-            if el != ""
+        operators = [
+            item
+            for item in lines.pop(len(lines) - 1).split(" ")
+            if item != ""
         ][:-1]
-        digits = [
+        operands = [
             re.findall(pattern, line)
             for line in lines
         ]
         return [
-            [el[ind] for el in digits] + [op]
-            for ind, op in enumerate(operations_to_perform)
+            [el[ind] for el in operands] + [op]
+            for ind, op in enumerate(operators)
         ]
 
+    def parse_ceph(self, lines: list[str]) -> list[list[str]]:
+        transposed = "|".join(["".join(chars) for chars in zip(*lines)])
+        clusters = transposed.split("|" + " " * len(lines) + "|")
+        op_pattern = r"[*+]"
+        pattern = r"\d+"
+        return [
+            re.findall(pattern, cluster) + re.findall(op_pattern, cluster)
+            for cluster in clusters
+        ]
 
 
 class Solution:
@@ -68,10 +77,11 @@ class Solution:
 
     def first_task(self) -> int:
         wkst = Worksheet(self.lines)
-        return sum(col.total for col in wkst.columns)
+        return wkst.sum_totals
 
     def second_task(self) -> int:
-        pass
+        wkst = Worksheet(self.lines, cephalopod=True)
+        return wkst.sum_totals
 
 def main():
     solution = Solution()
