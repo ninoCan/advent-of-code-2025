@@ -1,6 +1,30 @@
 from pathlib import Path
 from typing import Optional
 
+
+class TachionManifold:
+    SOURCE = "S"
+    BEAM = "|"
+    SPLITTER = "^"
+    PAIR = "|^|"
+
+    def __init__(self, lines: list[str]):
+        self.field = lines
+        self.beams_split = 0
+        self.beam_area = 0
+
+    def evolve(self) -> int:
+        if self.BEAM in self.field[1]:
+            return self.beams_split
+        beams_positions = self.fire_tachyonic_beam()
+        for index in range(1, len(self.field)):
+            if index % 2 == 0:
+                self.split_beams(beams_positions, index)
+            else:
+                self.propagate_beams(beams_positions, index)
+        return self.beams_split
+
+
 class Solution:
     _STANDARD_PATH = Path(__file__).parent / "input.txt"
 
