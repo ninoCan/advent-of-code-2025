@@ -118,6 +118,27 @@ class PlayGround:
                 merge_two_circuits(circuits, i, j)
         return circuits
 
+    def last_two_junctions_xes(self):
+        estimated_connections = math.comb(len(self.jboxes), 2) // 2
+        connected: set[int] = set()
+        circuits: Counter[frozenset[int]] = Counter()
+        for i, j in self.find_n_closest_pair_indices(estimated_connections):
+            if len(connected) == 0:
+                add_new_pair(circuits, connected, i, j)
+            elif i not in connected and j not in connected:
+                add_new_pair(circuits, connected, i, j)
+            elif i in connected and j not in connected:
+                extend_one_circuit(circuits, i, j)
+                connected.add(j)
+            elif i not in connected and j in connected:
+                extend_one_circuit(circuits, j, i)
+                connected.add(i)
+            else:
+                merge_two_circuits(circuits, i, j)
+            if len(connected) == len(self.jboxes) and len(circuits.keys()) == 1:
+                return self.jboxes[i].x * self.jboxes[j].x
+        raise RuntimeError("Raise the estimated_connections")
+
 
 class Solution:
     _STANDARD_PATH = Path(__file__).parent / "input.txt"
@@ -133,7 +154,8 @@ class Solution:
 
 
     def second_task(self) -> int:
-        pass
+        playground = PlayGround(self.lines)
+        return playground.last_two_junctions_xes()
 
 def main():
     solution = Solution()
