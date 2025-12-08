@@ -1,4 +1,6 @@
 import re
+from copy import deepcopy
+from math import comb
 from pathlib import Path
 from typing import Optional
 
@@ -10,9 +12,9 @@ class TachionManifold:
     PAIR = "|^|"
 
     def __init__(self, lines: list[str]):
-        self.field = lines
+        self.field = deepcopy(lines)
         self.beams_split = 0
-        self.beam_area = 0
+        self.worlds = [0] * len(self.field[0])
 
     def evolve(self) -> int:
         """ Populate the field with the tachion beam and return the number of splits """
@@ -27,29 +29,28 @@ class TachionManifold:
         return self.beams_split
 
     def fire_tachyonic_beam(self) -> set[int]:
-        first_row = self.field[1]
         source_x = self.field[0].index(self.SOURCE)
-        self.field[1] = first_row[:source_x] + self.BEAM + first_row[source_x + 1:]
-        self.beam_area += 1
+        self.worlds[source_x] += 1
+        self.field[1] = self.field[1][:source_x] + self.BEAM + self.field[1][source_x + 1:]
         return {source_x}
 
     def split_beams(self, positions: set[int], row_num: int) -> None:
-        row =  self.field[row_num]
-        splitters = re.finditer(r"[\^]", row)
+        splitters = re.finditer(r"[\^]", self.field[row_num])
         for x in (match.start() for match in splitters):
             if x in positions:
-                self.field[row_num] = row[:x - 1] + self.PAIR + row[x + 2:]
+                self.field[row_num] = self.field[row_num][:x - 1] + self.PAIR + self.field[row_num][x + 2:]
                 positions.remove(x)
                 positions.add(x - 1)
                 positions.add(x +1)
                 self.beams_split += 1
-                self.beam_area += 2
+                self.worlds[x - 1] += self.worlds[x]
+                self.worlds[x + 1] += self.worlds[x]
+                self.worlds[x] = 0
+        return None
 
     def propagate_beams(self, positions: set[int], row_num: int) -> None:
-        row =  self.field[row_num]
         for x in positions:
-            self.field[row_num] = row[:x] + self.BEAM + row[x + 1:]
-            self.beam_area += 1
+            self.field[row_num] = self.field[row_num][:x] + self.BEAM + self.field[row_num][x + 1:]
 
 
 class Solution:
@@ -64,7 +65,9 @@ class Solution:
         return manifold.evolve()
 
     def second_task(self) -> int:
-        pass
+        manifold = TachionManifold(self.lines)
+        manifold.evolve()
+        return sum(manifold.worlds)
 
 def main():
     solution = Solution()
