@@ -1,9 +1,7 @@
-import queue
 import re
-from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Counter
+from typing import Optional
 
 import networkx as nx
 
@@ -60,7 +58,16 @@ class Solution:
 
 
     def second_task(self) -> int:
-        pass
+        server = ServerRack(self.lines)
+        return sum(
+            1
+            for path in nx.all_simple_paths(
+                server.routes,
+                source="svr",
+                target="out",
+            )
+            if "dac" in path and "fft" in path
+        )
 
 def main():
     solution = Solution()
