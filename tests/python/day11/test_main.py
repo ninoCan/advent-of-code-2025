@@ -16,6 +16,14 @@ def provide_test_lines() -> list[str]:
         return [line.strip() for line in file.readlines()[example_slice]]
 
 
+@pytest.fixture
+def provide_test_lines_2() -> list[str]:
+    source_path = Path(getsourcefile(Solution)).resolve().parent / 'README.md'
+    with source_path.open("r") as file:
+        example_slice = slice(67, 80)
+        return [line.strip() for line in file.readlines()[example_slice]]
+
+
 @pytest.mark.parametrize(
     "iteration,label,outputs",
     (
@@ -46,8 +54,8 @@ def test_first_task(provide_test_lines: list[str]) -> None:
     assert actual == expected
 
 
-def test_second_task(provide_test_lines: list[str]) -> None:
-    under_test = Solution(lines=provide_test_lines)
-    expected = "placeholder"
+def test_second_task(provide_test_lines_2: list[str]) -> None:
+    under_test = Solution(lines=provide_test_lines_2)
+    expected = 2
     actual = under_test.second_task()
     assert actual == expected
