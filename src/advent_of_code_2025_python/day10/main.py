@@ -1,9 +1,11 @@
 import logging
 import re
+from copy import deepcopy
 from itertools import combinations_with_replacement
 from pathlib import Path
 from typing import Optional
 
+import numpy as np
 
 type MachineProps = tuple[str, list[list[int]], list[int]]
 
@@ -20,7 +22,7 @@ class Machine:
     ):
         self.light_diagram = diagram
         self.buttons = buttons
-        self.joltages = joltage_reqs
+        self.joltage_reqs = joltage_reqs
         self.key = int(
             self.light_diagram
             .replace(".", "0")
@@ -39,7 +41,7 @@ class Machine:
             raise NotImplementedError(f"Strategy {strategy} was not implemented yet")
         return self._dfs_minimal_buttons()
 
-    def _dfs_minimal_buttons(self) -> list[int]:
+    def _dfs_minimal_buttons(self) -> int:
         initial_state = 0
         button_pressed = 1
         state = initial_state
@@ -56,6 +58,54 @@ class Machine:
                     logging.warning(f"WARNING: All possible states reached! Check your logic for {self.light_diagram}")
                     return []
 
+    def minimal_buttons_to_reach_joltage_reqs(
+        self,
+        # strategy: str = "principal-value-decomposition",
+        strategy: str = "deep-first"
+
+    ) -> int:
+        if strategy == "deep-first":
+            return self._dfs_minimal_buttons_to_reach_joltages()
+        if strategy != "principal-value-decomposition":
+            raise NotImplementedError(f"Strategy {strategy} was not implemented yet")
+        return self._pvd_minimal_buttons_to_reach_joltages()
+
+    def _pvd_minimal_buttons_to_reach_joltages(self) -> int:
+        vector = np.array(self.joltage_reqs)
+        basis_vectors = []
+        for button in self.buttons:
+            state = [0] * len(self.joltage_reqs)
+            for light in button:
+                state[light] += 1
+            basis_vectors.append(np.array(state))
+        matrix = np.column_stack(basis_vectors)
+        coefficients, residuals, rank, s = np.linalg.lstsq(matrix, vector, rcond=None)
+        # A = np.array(basis_vectors)
+        # b = np.array(vector)
+        # coefficients = np.linalg.pinv(A) @ b
+        # coefficients, residuals, rank, s = np.linalg.lstsq(A, b, rcond=None)
+        return sum(int(el) for el in coefficients)
+        # matrix = np.column_stack(basis_vectors)
+        # coefficients =np.linalg.solve(matrix, vector)
+        # coefficients = np.linalg.pinv(matrix) @ vector
+        # return sum(int(item) for item in coefficents)
+
+
+    def _dfs_minimal_buttons_to_reach_joltages(self) -> int:
+        initial_state = tuple([0] * len(self.joltage_reqs))
+        button_pressed = 1
+        state = list(initial_state)
+        while state != self.key:
+            for combo in combinations_with_replacement(self.buttons, button_pressed):
+                for button in combo:
+                    for light in button:
+                        state[light] += 1
+                if state == self.joltage_reqs:
+                    print(f"Found {self.joltage_reqs}")
+                    return button_pressed
+                state = list(initial_state)
+            else:
+                button_pressed += 1
 
 
 class Solution:
@@ -97,7 +147,8 @@ class Solution:
 
 
     def second_task(self) -> int:
-        pass
+        machines = [Machine(*self.parse(line)) for line in self.lines]
+        return sum(machine.minimal_buttons_to_reach_joltage_reqs() for machine in machines)
 
 def main():
     solution = Solution()
