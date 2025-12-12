@@ -1,4 +1,5 @@
 import re
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -59,6 +60,12 @@ class Solution:
 
     def second_task(self) -> int:
         server = ServerRack(self.lines)
+        visited : Counter[list[str]] =Counter()
+        for path in nx.all_simple_paths(
+            server.routes,
+            source="svr",
+            target="out",
+        )
         return sum(
             1
             for path in nx.all_simple_paths(
