@@ -1,13 +1,23 @@
 import logging
 import re
-from copy import deepcopy
-from itertools import combinations_with_replacement
+from functools import cache
+from itertools import combinations_with_replacement, product
 from pathlib import Path
 from typing import Optional
 
 import numpy as np
+from scipy.linalg import null_space
+from scipy.optimize import milp, LinearConstraint, Bounds
 
 type MachineProps = tuple[str, list[list[int]], list[int]]
+
+
+@cache
+def sum_vectors_in_combo(state, combo):
+    if combo:
+        return state
+    return sum_vectors_in_combo(tuple(np.array(state) + np.array(combo[0])), combo[1:])
+
 
 class Machine:
     light_diagram: str
@@ -22,7 +32,7 @@ class Machine:
     ):
         self.light_diagram = diagram
         self.buttons = buttons
-        self.joltage_reqs = joltage_reqs
+        self.joltage_reqs = tuple(joltage_reqs)
         self.key = int(
             self.light_diagram
             .replace(".", "0")
@@ -60,9 +70,8 @@ class Machine:
 
     def minimal_buttons_to_reach_joltage_reqs(
         self,
-        # strategy: str = "principal-value-decomposition",
-        strategy: str = "deep-first"
-
+        strategy: str = "principal-value-decomposition",
+        # strategy: str = "deep-first"
     ) -> int:
         if strategy == "deep-first":
             return self._dfs_minimal_buttons_to_reach_joltages()
@@ -71,25 +80,57 @@ class Machine:
         return self._pvd_minimal_buttons_to_reach_joltages()
 
     def _pvd_minimal_buttons_to_reach_joltages(self) -> int:
-        vector = np.array(self.joltage_reqs)
-        basis_vectors = []
+        target = np.array(self.joltage_reqs)
+        vectors = self.buttons_as_vectors()
+        minimum_coefficients = self.constrained_coefficents(vectors, target)
+        buttons_pressed = sum(int(el) for el in minimum_coefficients)
+        return buttons_pressed
+
+    def cycle_for_minimal_buttons_pressed(
+        self,
+        basis: list[np.ndarray],
+        linearly_dependent_vectors: list[np.ndarray],
+        minimum_coefficients: list[float],
+        target: np.ndarray,
+    ) -> int:
+        buttons_pressed = sum(int(el) for el in minimum_coefficients) if len(minimum_coefficients) > 1 else np.inf
+        for vector, i in product(linearly_dependent_vectors, range(len(basis))):
+            candidate_basis = basis[:i] + basis[i + 1:] + [vector]
+            coefficients = self.constrained_coefficents(candidate_basis, target)
+            if len(coefficients) > 1:
+                buttons_pressed = min(buttons_pressed, sum(int(el) for el in coefficients))
+        if buttons_pressed == np.inf:
+            print(",".join([str(el) for el in target]))
+        return buttons_pressed
+
+    def constrained_coefficents(self, basis,target):
+        matrix = np.column_stack(basis)
+        ones = np.ones(matrix.shape[1])
+        result = milp(
+            ones,
+            constraints=[LinearConstraint(matrix, target, target)],
+            bounds=Bounds(lb=0, ub=np.inf),
+            integrality=ones,
+        )
+        return result["x"] if result.success else [np.inf]
+
+    def buttons_as_vectors(self) -> list[np.ndarray]:
+        vectors = []
         for button in self.buttons:
             state = [0] * len(self.joltage_reqs)
             for light in button:
                 state[light] += 1
-            basis_vectors.append(np.array(state))
-        matrix = np.column_stack(basis_vectors)
-        coefficients, residuals, rank, s = np.linalg.lstsq(matrix, vector, rcond=None)
-        # A = np.array(basis_vectors)
-        # b = np.array(vector)
-        # coefficients = np.linalg.pinv(A) @ b
-        # coefficients, residuals, rank, s = np.linalg.lstsq(A, b, rcond=None)
-        return sum(int(el) for el in coefficients)
-        # matrix = np.column_stack(basis_vectors)
-        # coefficients =np.linalg.solve(matrix, vector)
-        # coefficients = np.linalg.pinv(matrix) @ vector
-        # return sum(int(item) for item in coefficents)
+            vectors.append(np.array(state))
+        return vectors
 
+    def extract_a_basis(self, vectors: list[np.ndarray]) -> tuple[list[np.ndarray], list[np.ndarray]]:
+        basis, linearly_dependent_vectors = [vectors[0]], []
+        for vector in vectors[1:]:
+            if null_space(np.column_stack([*basis, vector])).size == 0:
+                basis.append(vector)
+            else:
+                linearly_dependent_vectors.append(vector)
+        return basis, linearly_dependent_vectors
 
     def _dfs_minimal_buttons_to_reach_joltages(self) -> int:
         initial_state = tuple([0] * len(self.joltage_reqs))
